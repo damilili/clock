@@ -30,10 +30,9 @@ public class SpeachUtil {
         });
     }
 
-    public static void speakDate(String dateText) {
-        String[] split = dateText.split("-");
+    public static void speakDate(String month, String date) {
         String result = "今天是";
-        switch (split[1]) {
+        switch (month) {
             case "01":
                 result += "一月";
                 break;
@@ -71,14 +70,14 @@ public class SpeachUtil {
                 result += "十二月";
                 break;
         }
-        String chinaNum = getChinaNum(split[2]);
+        String chinaNum = getChinaNum(date);
         if (chinaNum.startsWith("零")) {
             result += chinaNum.substring(1);
         } else {
             result += chinaNum;
         }
         result += "号";
-        Log.d(TAG, "speakDate() called with: dateText = [" + dateText + "]");
+        Log.d(TAG, "speakDate() called with: dateText = [" + date + "]");
         speak(result);
     }
 
@@ -86,10 +85,9 @@ public class SpeachUtil {
         TextToSpeech.speak(content, TextToSpeech.QUEUE_FLUSH, null);
     }
 
-    public static void speakTime(String clockText) {
-        String[] split = clockText.split(":");
+    public static void speakTime(String hour, String minute) {
         StringBuilder result = new StringBuilder();
-        switch (split[0]) {
+        switch (hour) {
             case "00":
                 result.append("十二点");
                 break;
@@ -163,12 +161,12 @@ public class SpeachUtil {
                 result.append("下午十一点");
                 break;
         }
-        if (split[1].equals("00")) {
+        if (minute.equals("00")) {
             result.append("整");
-        } else if (split[1].equals("30")) {
+        } else if (minute.equals("30")) {
             result.append("半");
         } else {
-            result.append(getChinaNum(split[1]));
+            result.append(getChinaNum(minute));
             result.append("分");
         }
         speak(result.toString());

@@ -18,7 +18,6 @@ public class ScreenUtil {
         PowerManager.WakeLock mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, ScreenUtil.class.getName());
         mWakeLock.acquire();
         mWakeLock.release();
-
     }
 
     public static void screenOff(Context context) {

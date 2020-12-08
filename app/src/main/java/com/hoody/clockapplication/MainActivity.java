@@ -40,8 +40,15 @@ public class MainActivity extends Activity {
             String format = simpleDateFormat.format(new Date());
             String[] s = format.split(" ");
             mTextDate.setText(s[0]);
+            String[] split = s[0].split("-");
+            mMonth = split[1];
+            mDate = split[2];
             mTextClock.setText(s[1]);
-            mTextClock.postDelayed(this, 1000);
+            String[] time = s[1].split(":");
+            mHour = time[0];
+            mMinute = time[0];
+            mSecond = time[0];
+            mBaseView.postDelayed(this, 1000);
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - LastCallOnRmsChanged > 1000) {
                 doSpeechRecognition();
@@ -59,6 +66,12 @@ public class MainActivity extends Activity {
     public static SpeechRecognizer mSpeechRecognizer;
     private static long LastCallOnRmsChanged;
     private boolean recognitionAvailable;
+    private View mBaseView;
+    private String mMonth;
+    private String mDate;
+    private String mHour;
+    private String mMinute;
+    private String mSecond;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +81,11 @@ public class MainActivity extends Activity {
                         WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_main);
+        mBaseView = View.inflate(this, R.layout.activity_main, null);
+        setContentView(mBaseView);
         mTextDate = findViewById(R.id.text_date);
         mTextClock = findViewById(R.id.text_clock);
-        mTextClock.postDelayed(mRefreshAction, 1000);
+        mBaseView.postDelayed(mRefreshAction, 1000);
         mTextClock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,7 +96,7 @@ public class MainActivity extends Activity {
                 }
             }
         });
-        postScreenOff();
+
         if (mSpeechRecognizer == null) {
             mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
             mSpeechRecognizer.setRecognitionListener(new MyRecognitionListener());
@@ -94,7 +108,7 @@ public class MainActivity extends Activity {
         recognitionAvailable = SpeechRecognizer.isRecognitionAvailable(this);
         Log.d(TAG, "doSpeechRecognition() called recognitionAvailable = " + recognitionAvailable);
         if (recognitionAvailable) {
-            mTextClock.postDelayed(new Runnable() {
+            mBaseView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     Log.d(TAG, "run(ee) called");
@@ -110,8 +124,15 @@ public class MainActivity extends Activity {
     }
 
     private void postScreenOff() {
-        mTextClock.removeCallbacks(mScreenOffAction);
-        mTextClock.postDelayed(mScreenOffAction, DelayScreenOffTimeInMillis);
+        mBaseView.removeCallbacks(mScreenOffAction);
+        mBaseView.postDelayed(mScreenOffAction, DelayScreenOffTimeInMillis);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume() called");
+        postScreenOff();
     }
 
     private class MyRecognitionListener implements RecognitionListener {
@@ -185,11 +206,11 @@ public class MainActivity extends Activity {
         //匹配指令
         if (VoiceKeyUtil.matchClockKey(commend)) {
             //播报时间
-            SpeachUtil.speakTime(mTextClock.getText().toString());
+            SpeachUtil.speakTime(mHour, mMinute);
             return true;
         } else if (VoiceKeyUtil.matchDateKey(commend)) {
             //播报日期
-            SpeachUtil.speakDate(mTextDate.getText().toString());
+            SpeachUtil.speakDate(mMonth, mDate);
             return true;
         } else if (VoiceKeyUtil.matchWeekKey(commend)) {
             //播报星期
