@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    android:background="#ff000000"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/text_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="12dp"
+        android:textColor="#ffffffff"
+        android:textSize="50dp"
+        android:textStyle="bold"
+        tools:text="2012-12-12!" />
+
+    <TextView
+        android:id="@+id/text_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textColor="#ffffffff"
+        android:textSize="140dp"
+        android:textStyle="bold"
+        tools:text="12:12:12" />
+
+</RelativeLayout>
