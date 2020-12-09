@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hoody.clockapplication.util.FlashlightUtil;
+import com.hoody.clockapplication.util.LightSensorUtil;
 import com.hoody.clockapplication.util.ScreenUtil;
 import com.hoody.clockapplication.util.SpeachUtil;
 import com.hoody.clockapplication.util.VoiceKeyUtil;
@@ -133,6 +134,13 @@ public class MainActivity extends Activity {
         super.onResume();
         Log.d(TAG, "onResume() called");
         postScreenOff();
+        LightSensorUtil.registerLightSensor(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LightSensorUtil.unregisterLightSensor(this);
     }
 
     private class MyRecognitionListener implements RecognitionListener {
@@ -151,6 +159,9 @@ public class MainActivity extends Activity {
             Log.d(TAG, "onRmsChanged() called with: rmsdB = [" + rmsdB + "]");
             if (rmsdB > 12) {
                 ScreenUtil.screenOn(MainActivity.this);
+                if (LightSensorUtil.lightLevel >= 0 && LightSensorUtil.lightLevel < 10) {
+                    FlashlightUtil.toggleLight(true);
+                }
                 postScreenOff();
             }
             LastCallOnRmsChanged = System.currentTimeMillis();
