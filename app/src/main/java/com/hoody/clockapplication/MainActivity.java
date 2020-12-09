@@ -38,28 +38,7 @@ public class MainActivity extends Activity {
     private Runnable mRefreshAction = new Runnable() {
         @Override
         public void run() {
-            String format = simpleDateFormat.format(new Date());
-            String[] s = format.split(" ");
-            mTextDate.setText(s[0]);
-            String[] split = s[0].split("-");
-            mMonth = split[1];
-            mDate = split[2];
-            mTextClock.setText(s[1]);
-            String[] time = s[1].split(":");
-            mHour = time[0];
-            mMinute = time[0];
-            mSecond = time[0];
-            mBaseView.postDelayed(this, 1000);
-            long currentTimeMillis = System.currentTimeMillis();
-            if (currentTimeMillis - LastCallOnRmsChanged > 1000) {
-                doSpeechRecognition();
-            }
-            if (!FlashlightUtil.hasClosed) {
-                //关灯
-                if ((currentTimeMillis - FlashlightUtil.LastOpenLightTime) > 30000) {
-                    FlashlightUtil.toggleLight(false);
-                }
-            }
+            refreshTime();
         }
     };
     private final int DelayScreenOffTimeInMillis = 20 * 1000;
@@ -70,7 +49,7 @@ public class MainActivity extends Activity {
     private View mBaseView;
     private String mMonth;
     private String mDate;
-    private String mHour;
+    private String mHour = "0";
     private String mMinute;
     private String mSecond;
 
@@ -86,6 +65,7 @@ public class MainActivity extends Activity {
         setContentView(mBaseView);
         mTextDate = findViewById(R.id.text_date);
         mTextClock = findViewById(R.id.text_clock);
+        refreshTime();
         mBaseView.postDelayed(mRefreshAction, 1000);
         mTextClock.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,14 +78,38 @@ public class MainActivity extends Activity {
             }
         });
 
+
+        doSpeechRecognition();
+    }
+    private void refreshTime() {
+        String format = simpleDateFormat.format(new Date());
+        String[] s = format.split(" ");
+        mTextDate.setText(s[0]);
+        String[] split = s[0].split("-");
+        mMonth = split[1];
+        mDate = split[2];
+        mTextClock.setText(s[1]);
+        String[] time = s[1].split(":");
+        mHour = time[0];
+        mMinute = time[0];
+        mSecond = time[0];
+        mBaseView.postDelayed(mRefreshAction, 1000);
+        long currentTimeMillis = System.currentTimeMillis();
+        if (currentTimeMillis - LastCallOnRmsChanged > 1000) {
+            doSpeechRecognition();
+        }
+        if (!FlashlightUtil.hasClosed) {
+            //关灯
+            if ((currentTimeMillis - FlashlightUtil.LastOpenLightTime) > 30000) {
+                FlashlightUtil.toggleLight(false);
+            }
+        }
+    }
+    public void doSpeechRecognition() {
         if (mSpeechRecognizer == null) {
             mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
             mSpeechRecognizer.setRecognitionListener(new MyRecognitionListener());
         }
-        doSpeechRecognition();
-    }
-
-    public void doSpeechRecognition() {
         recognitionAvailable = SpeechRecognizer.isRecognitionAvailable(this);
         Log.d(TAG, "doSpeechRecognition() called recognitionAvailable = " + recognitionAvailable);
         if (recognitionAvailable) {
@@ -159,7 +163,7 @@ public class MainActivity extends Activity {
             Log.d(TAG, "onRmsChanged() called with: rmsdB = [" + rmsdB + "]");
             if (rmsdB > 12) {
                 ScreenUtil.screenOn(MainActivity.this);
-                if (LightSensorUtil.lightLevel >= 0 && LightSensorUtil.lightLevel < 10) {
+                if ((Integer.parseInt(mHour) > 20 || Integer.parseInt(mHour) < 6) && LightSensorUtil.lightLevel >= 0 && LightSensorUtil.lightLevel < 10) {
                     FlashlightUtil.toggleLight(true);
                 }
                 postScreenOff();
