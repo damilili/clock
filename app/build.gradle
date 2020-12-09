@@ -3,7 +3,14 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
     buildToolsVersion "30.0.0"
-
+    signingConfigs {
+        myconfig {
+            keyAlias "clock"
+            keyPassword "hoodycn"
+            storePassword "hoodycn"
+            storeFile rootProject.file("./keystore")
+        }
+    }
     defaultConfig {
         applicationId "com.hoody.clockapplication"
         minSdkVersion 14
@@ -18,10 +25,12 @@ android {
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.myconfig
         }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.myconfig
         }
     }
 }
