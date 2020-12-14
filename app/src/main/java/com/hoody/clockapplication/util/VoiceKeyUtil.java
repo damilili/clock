@@ -1,5 +1,7 @@
 package com.hoody.clockapplication.util;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 public class VoiceKeyUtil {
@@ -13,6 +15,7 @@ public class VoiceKeyUtil {
 
     public static boolean matchClockKey(String content) {
         for (String s : KeyClock) {
+            Log.d("onResults", "matchClockKey() called with: content = [" + content.contains(s) + "]");
             if (content.contains(s)) {
                 return true;
             }
@@ -64,10 +67,8 @@ public class VoiceKeyUtil {
         return false;
     }
     static {
-        KeyClock.add("几点啦");
-        KeyClock.add("几点了");
-        KeyClock.add("现在几点");
-        KeyClock.add("这会几点");
+        KeyClock.add("几点");
+        KeyClock.add("时间");
 
         KeyDate.add("几号");
 
@@ -77,8 +78,10 @@ public class VoiceKeyUtil {
         KeyLightON.add("开电灯");
         KeyLightON.add("打开电灯");
         KeyLightON.add("开灯");
+        KeyLightON.add("打开");
 
         KeyLightOFF.add("关灯");
+        KeyLightOFF.add("关闭");
 
         KeyName.add("沙漏");
     }

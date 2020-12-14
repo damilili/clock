@@ -6,6 +6,7 @@ import android.util.Log;
 import com.hoody.clockapplication.app.Application;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * 语音播报
@@ -21,7 +22,7 @@ public class SpeachUtil {
             public void onInit(int status) {
                 if (status == TextToSpeech.SUCCESS) {
                     //设置朗读语言
-//                    int supported = mTextToSpeech.setLanguage(Locale.US);
+                    int supported = TextToSpeech.setLanguage(Locale.US);
 //                    if ((supported != TextToSpeech.LANG_AVAILABLE) && (supported != TextToSpeech.LANG_COUNTRY_AVAILABLE)) {
 //                    }
                 }
@@ -169,6 +170,7 @@ public class SpeachUtil {
             result.append(getChinaNum(minute));
             result.append("分");
         }
+        Log.d("onResults", "speakTime() called with: hour = [" + result.toString()+ "]");
         speak(result.toString());
     }
 

@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
     private String mHour = "0";
     private String mMinute;
     private String mSecond;
+    private Runnable mRecordAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +79,23 @@ public class MainActivity extends Activity {
             }
         });
 
-
+        if (mSpeechRecognizer == null) {
+            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            mSpeechRecognizer.setRecognitionListener(new MyRecognitionListener());
+            mRecordAction = new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "run(ee) called");
+                    if (System.currentTimeMillis() - LastCallOnRmsChanged <300) {
+                        return;
+                    }
+                    Intent recognitionIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                    recognitionIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+                    recognitionIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
+                    mSpeechRecognizer.startListening(recognitionIntent);
+                }
+            };
+        }
         doSpeechRecognition();
     }
     private void refreshTime() {
@@ -91,8 +108,8 @@ public class MainActivity extends Activity {
         mTextClock.setText(s[1]);
         String[] time = s[1].split(":");
         mHour = time[0];
-        mMinute = time[0];
-        mSecond = time[0];
+        mMinute = time[1];
+        mSecond = time[2];
         mBaseView.postDelayed(mRefreshAction, 1000);
         long currentTimeMillis = System.currentTimeMillis();
         if (currentTimeMillis - LastCallOnRmsChanged > 1000) {
@@ -106,23 +123,11 @@ public class MainActivity extends Activity {
         }
     }
     public void doSpeechRecognition() {
-        if (mSpeechRecognizer == null) {
-            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-            mSpeechRecognizer.setRecognitionListener(new MyRecognitionListener());
-        }
         recognitionAvailable = SpeechRecognizer.isRecognitionAvailable(this);
         Log.d(TAG, "doSpeechRecognition() called recognitionAvailable = " + recognitionAvailable);
         if (recognitionAvailable) {
-            mBaseView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d(TAG, "run(ee) called");
-                    Intent recognitionIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                    recognitionIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-                    recognitionIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN");
-                    mSpeechRecognizer.startListening(recognitionIntent);
-                }
-            }, 300);
+            mBaseView.removeCallbacks(mRecordAction);
+            mBaseView.postDelayed(mRecordAction, 300);
         } else {
             Toast.makeText(MainActivity.this, "不支持语音命令", Toast.LENGTH_SHORT).show();
         }
@@ -160,10 +165,10 @@ public class MainActivity extends Activity {
 
         @Override
         public void onRmsChanged(float rmsdB) {
-            Log.d(TAG, "onRmsChanged() called with: rmsdB = [" + rmsdB + "]");
-            if (rmsdB > 12) {
+            Log.d(TAG, "onRmsChanged() called with: rmsdB = [" + rmsdB + "]"+LightSensorUtil.lightLevel);
+            if (rmsdB > 10) {
                 ScreenUtil.screenOn(MainActivity.this);
-                if ((Integer.parseInt(mHour) > 20 || Integer.parseInt(mHour) < 6) && LightSensorUtil.lightLevel >= 0 && LightSensorUtil.lightLevel < 10) {
+                if ((Integer.parseInt(mHour) > 20 || Integer.parseInt(mHour) < 6) && LightSensorUtil.lightLevel >= 0 && LightSensorUtil.lightLevel < 3) {
                     FlashlightUtil.toggleLight(true);
                 }
                 postScreenOff();
